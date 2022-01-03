@@ -1,7 +1,7 @@
-const factory = require('factory-girl').factory;
-const faker = require('faker')
-const { User }   = require('../../app/models/index');
-const bcrypt = require("bcryptjs");
+const { factory } = require('factory-girl');
+const faker = require('faker');
+const bcrypt = require('bcryptjs');
+const { User } = require('../../app/models/index');
 
 factory.define('user', User, {
     email: () => `${faker.internet.userName().toLocaleLowerCase()}@example.com`,
@@ -13,7 +13,7 @@ factory.define('user', User, {
     username: () => faker.internet.userName(),
     password: bcrypt.hashSync('secret', 8),
     createdAt: () => new Date(),
-    updatedAt: () => new Date()
+    updatedAt: () => new Date(),
 });
-  
+
 module.exports = factory;

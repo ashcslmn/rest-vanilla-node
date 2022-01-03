@@ -1,17 +1,18 @@
+// eslint-disable-next-line no-unused-vars
 module.exports = function (req, res) {
-  return new Promise((resolve, reject) => {
-    try {
-      let body = "";
+    return new Promise((resolve, reject) => {
+        try {
+            let body = '';
 
-      req.on("data", (chunk) => {
-        body += chunk.toString();
-      });
+            req.on('data', (chunk) => {
+                body += chunk.toString();
+            });
 
-      req.on("end", () => {
-        resolve(body);
-      });
-    } catch (error) {
-      reject(err);
-    }
-  });
+            req.on('end', () => {
+                resolve(body);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 };

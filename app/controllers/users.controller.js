@@ -1,105 +1,107 @@
-const { User } = require("../models/index");
-const getPostData = require("../supports/getPostData");
-const JsonHeader = {
-  "Content-Type": "application/json",
-};
-const { Op } = require("sequelize");
-const bcrypt = require("bcryptjs");
+const { User } = require('../models/index');
+const getPostData = require('../supports/getPostData');
 
-/*
+const JsonHeader = {
+    'Content-Type': 'application/json',
+};
+const { Op } = require('sequelize');
+const bcrypt = require('bcryptjs');
+
+/**
  * @desc    Create User
  * @route   POST /api/users
  */
 async function createUser(req, res) {
-  try {
-    const body = await getPostData(req);
+    try {
+        const body = await getPostData(req);
 
-    const { email, firstName, lastName, address, postalcode, password } = JSON.parse(body);
-    
-    const hashedPassword = bcrypt.hashSync(password, 8);
+        const { email, firstName, lastName, address, postalcode, password } =
+            JSON.parse(body);
 
-    const user = await User.create({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      address,
-      postalcode
-    });
-    res.writeHead(200, JsonHeader);
-    res.end(JSON.stringify(user));
-  } catch (err) {
-    res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err.message));
-  }
+        const hashedPassword = bcrypt.hashSync(password, 8);
+
+        const user = await User.create({
+            email,
+            password: hashedPassword,
+            firstName,
+            lastName,
+            address,
+            postalcode,
+        });
+        res.writeHead(200, JsonHeader);
+        res.end(JSON.stringify(user));
+    } catch (err) {
+        res.writeHead(400, JsonHeader);
+        res.end(JSON.stringify(err.message));
+    }
 }
 
-/*
+/**
  * @desc    Delete User
  * @route   Delete /api/users/:id
  */
 async function deleteUser(req, res, id) {
-  try {
-    const user = await User.destroy({
-      where: {
-        id
-      },
-    });
+    try {
+        const user = await User.destroy({
+            where: {
+                id,
+            },
+        });
 
-    res.writeHead(200, JsonHeader);
-    res.end(JSON.stringify(user));
-  } catch (err) {
-    res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err));
-  }
+        res.writeHead(200, JsonHeader);
+        res.end(JSON.stringify(user));
+    } catch (err) {
+        res.writeHead(400, JsonHeader);
+        res.end(JSON.stringify(err));
+    }
 }
 
-/*
+/**
  * @desc    Update User
  * @route   PATCH | PUT /api/users/:id
  */
 async function updateUser(req, res, id) {
-  try {
-    const body = await getPostData(req);
+    try {
+        const body = await getPostData(req);
 
-    const { firstName, lastName, address, postalcode } = JSON.parse(body);
+        const { firstName, lastName, address, postalcode } = JSON.parse(body);
 
-    const user = await User.update(
-      {
-        firstName,
-        lastName,
-        address,
-        postalcode
-      },
-      {
-        where: {
-          id
-        }
-      }
-    );
+        const user = await User.update(
+            {
+                firstName,
+                lastName,
+                address,
+                postalcode,
+            },
+            {
+                where: {
+                    id,
+                },
+            }
+        );
 
-    res.writeHead(200, JsonHeader);
-    res.end(JSON.stringify(user));
-  } catch (err) {
-    res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err));
-  }
+        res.writeHead(200, JsonHeader);
+        res.end(JSON.stringify(user));
+    } catch (err) {
+        res.writeHead(400, JsonHeader);
+        res.end(JSON.stringify(err));
+    }
 }
 
-/*
+/**
  * @desc    Get Users
  * @route   GET /api/users
  */
 async function getUsers(req, res) {
-  try {
-    const users = await User.findAll();
+    try {
+        const users = await User.findAll();
 
-    res.writeHead(200, JsonHeader);
-    res.end(JSON.stringify(users));
-  } catch (err) {
-    res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err));
-  }
+        res.writeHead(200, JsonHeader);
+        res.end(JSON.stringify(users));
+    } catch (err) {
+        res.writeHead(400, JsonHeader);
+        res.end(JSON.stringify(err));
+    }
 }
 
 /*
@@ -107,25 +109,25 @@ async function getUsers(req, res) {
  * @route   Delete /api/users/bulkDelete
  */
 async function bulkDeleteUser(req, res) {
-  try {
-    const body = await getPostData(req);
+    try {
+        const body = await getPostData(req);
 
-    const { ids } = JSON.parse(body);
+        const { ids } = JSON.parse(body);
 
-    const users = await User.destroy({
-      where: {
-        id: {
-          [Op.in]: ids
-        }
-      }
-    });
+        const users = await User.destroy({
+            where: {
+                id: {
+                    [Op.in]: ids,
+                },
+            },
+        });
 
-    res.writeHead(200, JsonHeader);
-    res.end(JSON.stringify(users));
-  } catch (err) {
-    res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err));
-  }
+        res.writeHead(200, JsonHeader);
+        res.end(JSON.stringify(users));
+    } catch (err) {
+        res.writeHead(400, JsonHeader);
+        res.end(JSON.stringify(err));
+    }
 }
 
 module.exports = {
@@ -133,5 +135,5 @@ module.exports = {
     deleteUser,
     updateUser,
     getUsers,
-    bulkDeleteUser
+    bulkDeleteUser,
 };
