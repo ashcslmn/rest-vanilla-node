@@ -32,9 +32,18 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    address: DataTypes.TEXT('tiny'),
-    postalcode: DataTypes.BIGINT(11),
-    phoneNumber: DataTypes.STRING,
+    address:  { 
+      allowNull: true,
+      type: DataTypes.TEXT('tiny')
+    },
+    postalcode: { 
+      allowNull: true,
+      type: DataTypes.BIGINT(11),
+    },
+    phoneNumber: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
     email: { 
       type: DataTypes.STRING,
       unique: true,
@@ -43,7 +52,10 @@ module.exports = (sequelize, DataTypes) => {
         isEmail: true
       }
     },
-    username: DataTypes.STRING,
+    username: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
     password: {
       allowNull: false,
       type: DataTypes.STRING

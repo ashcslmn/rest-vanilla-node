@@ -1,84 +1,125 @@
 const { User } = require("../../app/models/index");
-const bcrypt = require("bcryptjs");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const server = require("../../index");
 const should = chai.should();
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require("bcryptjs");
 chai.use(chaiHttp);
 
+let auth = {
+  firstName: "Ashley",
+  lastName: "Solomon",
+  email: "ashcslmn@gmail.com",
+  password: "secret",
+  confirmPassword: "secret",
+};
+
+let user = {
+  firstName: "Juan",
+  lastName: "Dela Cruz",
+  email: "juan@example.com",
+  password: "secret",
+  confirmPassword: "secret",
+};
+
+let token = null;
+
 describe("Users /api/users", () => {
-
-  const user = {
-    firstName: "Ashley",
-    lastName: "Solomon",
-    email: "ashcslmn@gmail.com",
-    password: "secret",
-    confirmPassword: "secret",
-  };
-
-  before((done) => {
-    User.destroy({ truncate: true });
-    done();
+  beforeEach((done) => {
+    new Promise(async (resolve, reject) => {
+      await User.destroy({ truncate: true });
+      auth.password = bcrypt.hashSync(auth.password, 8);
+      await User.create(auth).then((user) => {
+        token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+          expiresIn: 86400, // expires in 24 hours
+        });
+      });
+      resolve(true);
+    }).then(() => done());
   });
 
   /**
-   * Test /POST api/auth/registration
+   * Test /POST api/users
    */
-  describe("/POST api/auth/user", () => {
-    it("it should register user", (done) => {
-        chai
-            .request(server)
-            .post("/api/users")
-            .send(user)
-            .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a("object");
-                done();
-            });
-    });
-  });
-
-  describe("/POST api/auth/login", () => {
-    it("it should login user", (done) => {
+  describe("/POST api/users", () => {
+    it("it should add user", (done) => {
       chai
         .request(server)
-        .post("/api/auth/login")
-        .send({ email: "ashcslmn@gmail.com", password: "secret" })
+        .post("/api/users")
+        .auth(token, { type: "bearer" })
+        .send(user)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a("object");
-          res.body.should.have.property("authenticated").eql(true);
-          res.body.should.have.property("token");
           done();
         });
     });
   });
 
-  describe("/POST api/auth/me", () => {
-    let token = null;
-    User.findOne({
-      where: {
-        email: user.email,
-      },
-    }).then((user) => {
-      token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: 86400, // expires in 24 hours
+  /**
+   * Test /GET api/users
+   */
+  describe("/GET api/users", () => {
+    it("it should get users", (done) => {
+      chai
+        .request(server)
+        .get("/api/users")
+        .auth(token, { type: "bearer" })
+        .send(user)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("array");
+          done();
+        });
+    });
+  });
+
+  /**
+   * Test /DELETE api/users/:id
+   */
+  describe("/DELETE api/users/:id", () => {
+    it("it should delete user", (done) => {
+      new Promise((resolve, reject) => {
+        User.create(user).then((item) => {
+          resolve(item);
+        });
+      }).then((item) => {
+        chai
+          .request(server)
+          .delete(`/api/users/${item.id}`)
+          .auth(token, { type: "bearer" })
+          .send(user)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("number").eql(1);
+            done();
+          });
       });
     });
+  });
 
-    it("it should show user", (done) => {
-      chai
-        .request(server)
-        .get("/api/auth/me")
-        .auth(token, { type: "bearer" })
-        .send({ email: user.email, password: user.secret })
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a("object");
-          done();
+  /**
+   * Test /GET api/users/bulkDelete
+   */
+  describe("/GET api/users/bulkDelete", () => {
+    it("it should bulkDelete user", (done) => {
+      new Promise(async (resolve, reject) => {
+        User.findOne({}).then((user) => {
+          resolve(user);
         });
+      }).then((item) => {
+        chai
+          .request(server)
+          .delete(`/api/users/bulkDelete`)
+          .auth(token, { type: "bearer" })
+          .send({ ids: [item.id] })
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("number").eql(1);
+            done();
+          });
+      });
     });
   });
 });

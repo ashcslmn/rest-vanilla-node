@@ -14,7 +14,7 @@ async function createUser(req, res) {
   try {
     const body = await getPostData(req);
 
-    const { email, firstName, lastName, address, postalcode } = JSON.parse(body);
+    const { email, firstName, lastName, address, postalcode, password } = JSON.parse(body);
     
     const hashedPassword = bcrypt.hashSync(password, 8);
 
@@ -26,12 +26,11 @@ async function createUser(req, res) {
       address,
       postalcode
     });
-
     res.writeHead(200, JsonHeader);
     res.end(JSON.stringify(user));
   } catch (err) {
     res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err));
+    res.end(JSON.stringify(err.message));
   }
 }
 
@@ -130,9 +129,9 @@ async function bulkDeleteUser(req, res) {
 }
 
 module.exports = {
-  createUser,
-  deleteUser,
-  updateUser,
-  getUsers,
-  bulkDeleteUser
+    createUser,
+    deleteUser,
+    updateUser,
+    getUsers,
+    bulkDeleteUser
 };

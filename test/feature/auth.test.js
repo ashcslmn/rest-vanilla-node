@@ -8,14 +8,17 @@ const jwt = require("jsonwebtoken");
 
 chai.use(chaiHttp);
 
-describe("Auth /api/auth", () => {
-  const user = {
+const user = {
     firstName: "Ashley",
     lastName: "Solomon",
     email: "ashcslmn@gmail.com",
     password: "secret",
     confirmPassword: "secret",
-  };
+};
+
+
+describe("Auth /api/auth", () => {
+    
 
   before((done) => {
     User.destroy({ truncate: true });
@@ -43,43 +46,56 @@ describe("Auth /api/auth", () => {
 
   describe("/POST api/auth/login", () => {
     it("it should login user", (done) => {
-      chai
-        .request(server)
-        .post("/api/auth/login")
-        .send({ email: "ashcslmn@gmail.com", password: "secret" })
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a("object");
-          res.body.should.have.property("authenticated").eql(true);
-          res.body.should.have.property("token");
-          done();
-        });
+        chai
+            .request(server)
+            .post("/api/auth/login")
+            .send({ email: user.email, password: user.password })
+            .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have.property("authenticated").eql(true);
+            res.body.should.have.property("token");
+            done();
+            });
     });
   });
 
   describe("/POST api/auth/me", () => {
-    let token = null;
-    User.findOne({
-      where: {
-        email: user.email,
-      },
-    }).then((user) => {
-      token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: 86400, // expires in 24 hours
-      });
-    });
+
+    // let token = null;
+    // User.findOne({
+    //   where: {
+    //     email: user.email,
+    //   },
+    // }).then((user) => {
+    //   token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    //     expiresIn: 86400, // expires in 24 hours
+    //   });
+    // });
 
     it("it should show user", (done) => {
-      chai
-        .request(server)
-        .get("/api/auth/me")
-        .auth(token, { type: "bearer" })
-        .send({ email: user.email, password: user.secret })
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a("object");
-          done();
-        });
+        new Promise((resolve, reject) => {
+            User.findOne({
+                    where: {
+                    email: user.email,
+                    },
+              }).then((user) => {
+                    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+                    expiresIn: 86400, // expires in 24 hours
+                    });
+                    resolve(token)
+              });
+        }).then((token) => {
+        chai
+            .request(server)
+            .get("/api/auth/me")
+            .auth(token, { type: "bearer" })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                done();
+            });
+        })
     });
   });
 });
