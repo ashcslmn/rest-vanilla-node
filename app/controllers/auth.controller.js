@@ -46,8 +46,7 @@ async function registerUser(req, res) {
 async function loginUser(req, res) {
   try {
     const body = await getPostData(req);
-    const { email, password, confirmPassword } = JSON.parse(body);
-    const hashedPassword = bcrypt.hashSync(password, 8);
+    const { email, password } = JSON.parse(body);
 
     const user = await User.findOne({
       where: {
@@ -70,7 +69,7 @@ async function loginUser(req, res) {
         JSON.stringify({
           authenticated: false,
           token: null,
-          message: "password not matched",
+          message: "invalid password",
         })
       );
       return false;
@@ -109,18 +108,20 @@ async function logoutUser(req, res, token) {
 async function getMe(req, res, token) {
   try {
     const decode = jwt.verify(token, process.env.JWT_SECRET);
-
+    console.log(decode.id)
     const user = await User.findOne({
       where: {
         id: decode.id,
       },
     });
 
+    if (!user) throw Error("no user")
+
     res.writeHead(200, JsonHeader);
     res.end(JSON.stringify({ authenticated: true, user, token }));
   } catch (err) {
     res.writeHead(400, JsonHeader);
-    res.end(JSON.stringify(err));
+    res.end(JSON.stringify(err.message));
   }
 }
 

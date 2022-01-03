@@ -4,6 +4,7 @@ const JsonHeader = {
   "Content-Type": "application/json",
 };
 const { Op } = require("sequelize");
+const bcrypt = require("bcryptjs");
 
 /*
  * @desc    Create User
