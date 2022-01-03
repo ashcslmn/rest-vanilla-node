@@ -10,12 +10,11 @@ npm install
 cp env.example .env
 cp config/database.example.json config/database.json
 ```
-3. Prepare Database
+3. Prepare Databases
 ```
 npx sequelize-cli db:create; NODE_ENV=test npx sequelize-cli db:create 
 ```
-4. add JWT SECRET for Simple Auth
-you can generate JWT_SECRETE using node `crypto`
+4. add JWT_SECRET for the simple Auth. You can generate JWT_SECRET using node `crypto`
 ```bash
 > require("crypto").randomBytes(20).toString('hex');
 ```
