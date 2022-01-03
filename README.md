@@ -1,6 +1,6 @@
 # rest-vanilla-node
 
-### Run Local
+### Preparations
 1. Install Dependencies
 ```bash
 npm install
@@ -20,7 +20,7 @@ you can generate JWT_SECRETE using node `crpto`
 > require("crypto").randomBytes(20).toString('hex');
 ```
 
-### Run Local
+### Run locally
 ```
 npm run start
 ```
