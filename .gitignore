@@ -1,0 +1,4 @@
+db.config.js
+.env
+node_modules
+config/database.json
